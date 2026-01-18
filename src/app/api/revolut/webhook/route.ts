@@ -1,5 +1,4 @@
-/* 
-import { NextRequest, NextResponse } from 'next/server';
+/* import { NextRequest, NextResponse } from 'next/server';
 import { initRevolutClient } from '@/lib/revolut';
 import { RevolutWebhookEvent } from '@/types/payment';
 import { validateRevolutConfig } from '@/config/revolut';
@@ -160,5 +159,16 @@ export async function GET() {
   // Some webhook systems require a GET endpoint for verification
   // This is typically done during webhook endpoint setup
   return NextResponse.json({ message: 'Webhook endpoint is active' });
+}*/
+
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(req: NextRequest) {
+  // Your webhook logic
+  return NextResponse.json({ status: 'ok' });
 }
-*/
+
+// Optional if GET is needed
+export async function GET(req: NextRequest) {
+  return NextResponse.json({ message: 'Webhook endpoint' });
+}
