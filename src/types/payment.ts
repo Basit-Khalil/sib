@@ -1,6 +1,5 @@
-// =======================
-// Request types
-// =======================
+
+
 export interface PaymentOrderRequest {
   amount: number;           // Amount in minor units (cents)
   currency?: string;        // Currency code (USD by default)
@@ -8,12 +7,11 @@ export interface PaymentOrderRequest {
   customerEmail: string;    // Customer email
   orderReference: string;   // Unique order reference
   description?: string;     // Optional description of the payment
-  // Removed serviceId because server computes it from serviceCategory + serviceSubOption
 }
 
-// =======================
+
 // Response types
-// =======================
+
 export interface PaymentOrderResponse {
   id: string;             // Revolut order ID
   status: string;         // Order status (e.g., 'created', 'pending')
@@ -22,27 +20,27 @@ export interface PaymentOrderResponse {
 }
 
 
-// =======================
+
 // Webhook event types
-// =======================
+
 export interface RevolutWebhookEvent {
-  id: string;               // Event ID
-  type: string;             // Event type ('order.completed', 'order.failed', etc.)
-  created_at: string;       // Timestamp of the event
+ id: string;              
+  type: string;            
+  created_at: string;       
   data: {
-    id: string;             // Revolut order ID
-    type: string;           // Order type
-    state: string;          // Order state ('completed', 'failed', etc.)
-    currency: string;       // Currency code
-    amount: number;         // Amount in minor units (cents)
-    merchant_order_reference?: string;  // Merchant order reference
-    metadata?: Record<string, string>;  // Optional additional info
+    id: string;            
+    type: string;           
+    state: string;         
+    currency: string;       
+    amount: number;         
+    merchant_order_reference?: string;  
+    metadata?: Record<string, string>;  
   };
 }
 
-// =======================
+
 // Internal payment record for DB tracking
-// =======================
+
 export interface PaymentRecord {
   id: string;                     // Internal payment record ID
   revolutOrderId: string;         // Revolut order ID
@@ -57,14 +55,12 @@ export interface PaymentRecord {
   metadata?: Record<string, string>; // Optional additional metadata
 }
 
-// =======================
 // Revolut API response type
-// =======================
+
 export interface RevolutOrderApiResponse {
   id: string;
-  state: string;           // API uses 'state' instead of 'status'
-  checkout_url: string;    // snake_case from API
+  state: string;           
+  checkout_url: string;    
   created_at?: string;
-  // other fields if needed
 }
 
