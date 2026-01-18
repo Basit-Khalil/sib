@@ -21,10 +21,11 @@
  *    Only test with real payment methods when you're ready for live transactions.
  */
 
-import dotenv from 'dotenv';
+
 import { initRevolutClient } from './src/lib/revolut';
 
-dotenv.config();
+const apiKey = process.env.REVOLUT_API_KEY;
+
 
 async function testProductionPayment() {
   console.log('Testing production Revolut payment flow...\n');
