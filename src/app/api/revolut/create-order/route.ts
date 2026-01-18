@@ -12,7 +12,7 @@ const SERVICE_PRICES: Record<string, number> = {
   'web-development-custom-cms': 2499,
   'web-development-frontend': 999,
   'web-development-backend': 1499,
-  'graphic-design-branding': 1,
+  'graphic-design-branding': 250,
   'graphic-design-logo-design': 100,
   'graphic-design-package-design': 399,
   'cyber-security-network-security': 499,

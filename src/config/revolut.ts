@@ -1,4 +1,3 @@
-// config/revolut.ts
 
 /**
  * Revolut Merchant API configuration

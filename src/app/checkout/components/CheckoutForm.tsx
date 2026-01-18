@@ -31,7 +31,7 @@ const SERVICE_OPTIONS: ServiceOptions = {
   'graphic-design': {
     label: 'Graphic Design',
     subOptions: {
-      'branding': { label: 'Branding', price: 1 },
+      'branding': { label: 'Branding', price: 250 },
       'logo-design': { label: 'Logo Design', price: 100 },
       'package-design': { label: 'Package Design', price: 399 }
     }
