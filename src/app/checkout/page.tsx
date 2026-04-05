@@ -22,7 +22,7 @@ export default function CheckoutPage() {
       </div>
 
       <div className="mt-8 text-center text-sm text-gray-500">
-        <p>Your payment details are securely processed by Revolut. We do not store any card information.</p>
+        <p>Your payment details are securely processed by our payment partners. We do not store any payment information.</p>
         <div className="mt-4 flex justify-center space-x-6">
           <div className="flex items-center">
             <svg className="w-5 h-5 text-green-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

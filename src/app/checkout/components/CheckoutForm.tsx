@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+type PaymentMethod = 'revolut' | 'sibs';
+
 interface CheckoutFormData {
   customerName: string;
   customerEmail: string;
@@ -10,6 +12,7 @@ interface CheckoutFormData {
   serviceSubOption: string;
   amount: number;
   description?: string;
+  paymentMethod: PaymentMethod;
 }
 
 interface ServiceSubOption {
@@ -80,6 +83,7 @@ export default function CheckoutForm() {
     serviceCategory: '',
     serviceSubOption: '',
     amount: 0,
+    paymentMethod: 'revolut',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -158,14 +162,20 @@ export default function CheckoutForm() {
 
       // Prepare the order data
       const orderData = {
-        ...formData,
-        orderReference: `order_${Date.now()}`, // Generate unique reference
-        currency: 'USD', // Default currency
-        serviceId: formData.serviceSubOption // Use the sub-option as service ID
+        customerName: formData.customerName,
+        customerEmail: formData.customerEmail,
+        serviceCategory: formData.serviceCategory,
+        serviceSubOption: formData.serviceSubOption,
+        description: formData.description,
       };
 
+      // Determine API endpoint based on payment method
+      const endpoint = formData.paymentMethod === 'sibs'
+        ? '/api/sibs/create-order'
+        : '/api/revolut/create-order';
+
       // Call the backend API to create the payment order
-      const response = await fetch('/api/revolut/create-order', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -179,11 +189,21 @@ export default function CheckoutForm() {
         throw new Error(result.error || 'Failed to create payment order');
       }
 
-      if (result.checkoutUrl) {
-        // Redirect to Revolut checkout page
-        window.location.href = result.checkoutUrl;
+      // Handle different payment provider responses
+      if (formData.paymentMethod === 'sibs') {
+        // SIBS returns formContext for widget initialization
+        if (!result.formContext) {
+          throw new Error('No formContext received from SIBS payment provider');
+        }
+        // Redirect to SIBS payment page with formContext
+        window.location.href = `/sibs-payment?formContext=${encodeURIComponent(result.formContext)}&transactionId=${result.transactionId}`;
       } else {
-        throw new Error('No checkout URL received from payment provider');
+        // Revolut returns checkoutUrl
+        if (result.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+        } else {
+          throw new Error('No checkout URL received from Revolut payment provider');
+        }
       }
     } catch (err: any) {
       console.error('Checkout error:', err);
@@ -306,13 +326,12 @@ export default function CheckoutForm() {
               <span className="text-gray-500 sm:text-sm">$</span>
             </div>
             <input
-    type="number"
-  id="amount"
-  value={formData.amount || ''}
-  readOnly
-  className="w-full px-3 py-2 pl-7 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
-/>
-
+              type="number"
+              id="amount"
+              value={formData.amount || ''}
+              readOnly
+              className="w-full px-3 py-2 pl-7 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+            />
           </div>
           <p className="mt-1 text-sm text-gray-500">
             Amount will be automatically filled based on your service selection.
@@ -332,6 +351,67 @@ export default function CheckoutForm() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Payment/Service description"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Payment Method *
+          </label>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Revolut Option */}
+            <div
+              onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'revolut' }))}
+              className={`relative flex items-center border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+                formData.paymentMethod === 'revolut'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex-shrink-0 mr-3">
+                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                  <span className="text-purple-600 font-bold text-sm">R</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900">Revolut</p>
+                <p className="text-xs text-gray-500">Cards & more</p>
+              </div>
+              {formData.paymentMethod === 'revolut' && (
+                <div className="absolute top-2 right-2">
+                  <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
+            </div>
+
+            {/* SIBS Option */}
+            <div
+              onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'sibs' }))}
+              className={`relative flex items-center border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+                formData.paymentMethod === 'sibs'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex-shrink-0 mr-3">
+                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                  <span className="text-orange-600 font-bold text-sm">S</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900">SIBS</p>
+                <p className="text-xs text-gray-500">MB WAY & more</p>
+              </div>
+              {formData.paymentMethod === 'sibs' && (
+                <div className="absolute top-2 right-2">
+                  <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="pt-4">
@@ -355,7 +435,7 @@ export default function CheckoutForm() {
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                 </svg>
-                Pay Securely with Revolut
+                {formData.paymentMethod === 'sibs' ? 'Pay with SIBS' : 'Pay with Revolut'}
               </span>
             )}
           </button>

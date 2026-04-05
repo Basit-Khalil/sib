@@ -59,8 +59,153 @@ export interface PaymentRecord {
 
 export interface RevolutOrderApiResponse {
   id: string;
-  state: string;           
-  checkout_url: string;    
+  state: string;
+  checkout_url: string;
   created_at?: string;
+}
+
+// ========================
+// SIBS Payment Types
+// ========================
+
+// SIBS API request types
+
+export interface SibsPaymentRequest {
+  merchant: {
+    terminalId: number;
+    channel: string;
+    merchantTransactionId: string;
+  };
+  transaction: {
+    transactionTimestamp: string;
+    description: string;
+    moto: boolean;
+    paymentType: 'AUTH' | 'PURS';
+    paymentMethod: string[];
+    amount: {
+      value: number;
+      currency: string;
+    };
+    paymentReference?: {
+      initialDatetime: string;
+      finalDatetime: string;
+      maxAmount: {
+        value: number;
+        currency: string;
+      };
+      minAmount: {
+        value: number;
+        currency: string;
+      };
+      entity: string;
+    };
+  };
+  customer: {
+    customerInfo: {
+      customerEmail: string;
+      shippingAddress?: {
+        street1: string;
+        street2?: string;
+        city: string;
+        postcode: string;
+        country: string;
+      };
+      billingAddress?: {
+        street1: string;
+        street2?: string;
+        city: string;
+        postcode: string;
+        country: string;
+      };
+    };
+  };
+}
+
+export interface SibsAddress {
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
+// SIBS API response types
+
+export interface SibsPaymentResponse {
+  returnStatus: {
+    statusCode: 'Success' | 'Partial' | 'Declined' | 'InProcessing' | 'Pending' | 'Timeout' | 'Error';
+    statusMsg: string;
+  };
+  paymentMethodList?: Array<{
+    paymentMethod: string;
+    paymentType: string;
+  }>;
+  merchant: {
+    terminalId: number;
+  };
+  amount: {
+    value: number;
+    currency: string;
+  };
+  formContext: string;
+  transactionID: string;
+  mandate?: {
+    mandateAvailable: boolean;
+    termsAndConditions: string;
+  };
+}
+
+// SIBS authentication response
+
+export interface SibsAuthResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  scope?: string;
+}
+
+// SIBS payment status check response
+
+export interface SibsPaymentStatusResponse {
+  returnStatus: {
+    statusCode: string;
+    statusMsg: string;
+  };
+  transactionID: string;
+  status: string;
+  amount?: {
+    value: number;
+    currency: string;
+  };
+}
+
+// SIBS webhook event types
+
+export interface SibsWebhookEvent {
+  transactionID: string;
+  merchantTransactionId: string;
+  status: string;
+  amount: {
+    value: number;
+    currency: string;
+  };
+  paymentMethod: string;
+  timestamp: string;
+}
+
+// Internal SIBS payment record for DB tracking
+
+export interface SibsPaymentRecord {
+  id: string;
+  sibsTransactionId: string;
+  merchantTransactionId: string;
+  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'IN_PROCESSING';
+  amount: number;
+  currency: string;
+  customerEmail: string;
+  serviceId: string;
+  formContext: string;
+  createdAt: string;
+  updatedAt: string;
+  metadata?: Record<string, string>;
 }
 
