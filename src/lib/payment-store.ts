@@ -63,8 +63,17 @@ function readPayments(): PaymentRecord[] {
 
 // Write all payments
 function writePayments(payments: PaymentRecord[]) {
-  ensureDataDir();
-  fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2), 'utf-8');
+  try {
+    ensureDataDir();
+    fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2), 'utf-8');
+  } catch (err: any) {
+    // EROFS on Vercel/serverless — log instead
+    if (err.code === 'EROFS') {
+      console.warn('[PAYMENT_STORE] File system read-only — payment records logged only');
+    } else {
+      throw err;
+    }
+  }
 }
 
 /**
