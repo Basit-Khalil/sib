@@ -80,8 +80,10 @@ function SibsPaymentForm() {
           setError(`Payment ${status.toLowerCase()}: ${desc}`);
         } else {
           // Start polling for status
-          const interval = setInterval(() => checkStatus(transactionId), 3000);
-          setPollingInterval(interval);
+          if (transactionId) {
+            const interval = setInterval(() => checkStatus(transactionId), 3000);
+            setPollingInterval(interval);
+          }
         }
       } else {
         setError(data.returnStatus?.statusMsg || data.error || 'Payment failed');
@@ -137,8 +139,10 @@ function SibsPaymentForm() {
           setError(`Payment ${status.toLowerCase()}: ${desc}`);
         } else {
           // Start polling for status
-          const interval = setInterval(() => checkStatus(transactionId), 3000);
-          setPollingInterval(interval);
+          if (transactionId) {
+            const interval = setInterval(() => checkStatus(transactionId), 3000);
+            setPollingInterval(interval);
+          }
         }
       } else {
         setError(data.returnStatus?.statusMsg || data.error || 'Payment failed');
