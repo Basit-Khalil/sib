@@ -60,10 +60,7 @@ export function initSibsClient() {
 
       const paymentMethods = input.paymentMethod
         ? [input.paymentMethod]
-        : ['CARD', 'MBWAY', 'REFERENCE']; // Default to all methods
-
-      const now = new Date().toISOString();
-      const expiryDate = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(); // 48h expiry
+        : ['CARD', 'MBWAY'];
 
       const payload: SibsPaymentRequest = {
         merchant: {
@@ -72,7 +69,7 @@ export function initSibsClient() {
           merchantTransactionId: input.orderReference,
         },
         transaction: {
-          transactionTimestamp: now,
+          transactionTimestamp: new Date().toISOString(),
           description: input.description || `Order ${input.orderReference}`,
           moto: false,
           paymentType: input.paymentType || 'PURS',
@@ -80,19 +77,6 @@ export function initSibsClient() {
           amount: {
             value: input.amount,
             currency: input.currency || 'EUR',
-          },
-          paymentReference: {
-            initialDatetime: now,
-            finalDatetime: expiryDate,
-            maxAmount: {
-              value: input.amount,
-              currency: input.currency || 'EUR',
-            },
-            minAmount: {
-              value: input.amount,
-              currency: input.currency || 'EUR',
-            },
-            entity: '24000',
           },
         },
         customer: {
